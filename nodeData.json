@@ -1,0 +1,67 @@
+{
+  "Node-0-0": {
+    "content": [
+      "<p><strong>Explore the neural network nebula by clicking the nodes</strong></p>",
+      "<p><strong>If the start nn button is pressed a simple mnist neural network will begin training using Tensorflowjs, this will likely slow down the page but only for a few seconds.</strong></p>",
+      "<div><button id='start-nn'>start nn</button></div>"
+    ]
+  },
+  "Node-1-0": {
+    "content": [
+      "<p><strong>Further Information: </strong>Adam Kocsis</p>",
+      "<p><strong>Hobbies: </strong><ul><li>Boxing</li><li>Movies</li><li>Art</li></ul></p>",
+      "<p><strong>Fun Facts: </strong>Subject's name translates to Adam Driver in English aka Kylo Ren</p>",
+      "<p>The word robot was first used in a Czech play from 1921</p>"
+    ]
+  },
+  "Node-1-1": {
+    "content": [
+      "<p><strong>Name: </strong>Adam Kocsis</p>",
+      "<p><strong>Born: </strong>2002 Budapest, Hungary</p>",
+      "<p><strong>Education: </strong>BS in Computer Science from the University of Florida</p>",
+      "<p>Currently pursuing a master's in AI at Boston University</p>",
+      "<p><strong>Interests: </strong><ul><li>AI</li><li>Machine Vision</li><li>TinyML</li></ul></p>"
+    ]
+  },
+  "Node-2-2": {
+    "content": [
+      "<p><strong>Adam's Resume: </strong></p>",
+      "<embed src='Adam_Kocsis_Resume_2023_2.pdf' type='application/pdf' width='100%' height='300x' />"    ]
+  },
+  "Node-2-1": {
+    "content": [
+      "<p><strong>Competitions / Hackathons: </strong>The subject has been known to compete and placed.</p>",
+      "<p><strong>Math Modeling Competitions: </strong><ul><li>SCUDEM</li><li><a href='wordle.pdf' download='wordle.pdf' style='text-decoration: underline; color: lightgreen;'>Wordle ICM/MCM</a></li><li><a href='submarine.pdf' download='submarine.pdf' style='text-decoration: underline; color: lightgreen;'>Submarine ICM/MCM</a></li></ul></p>",
+      "<p><strong>Hackathons: </strong><ul><li>UF AI Days</li><li>Georgia Tech Robothon</li><li><a href='https://www.youtube.com/watch?v=Ifhb8xKqb8c' target='_blank' style='text-decoration: underline; color: lightgreen;'>UF IoT Club</a></li></ul></p>"
+    ]
+  },
+  "Node-2-0": {
+    "content": [
+      "<p><strong>Clubs: </strong>The subject has been know to engage with both academic and recreational clubs</p>",
+      "<p><strong>Academic: </strong><ul><li>UF gAItor AI club (applied team lead)</li><li>ACM</li></ul></p>",
+      "<p><strong>Recreations: </strong><ul><li>UF Kickboxing Club</li><li>UF Judo Club</li><li>UF OAR Club</li></ul></p>"
+    ]
+  },
+  "Node-3-0": {
+    "content": [
+      "<p><strong>Future Work / Interests: </strong>Admitted to Boston University's AI masters program where I would like to concentrate on machine vision and tinyML</p>",
+      "<p><strong>Projects: </strong>Currently working on refactoring the Nagamasou game using the esp-idf to have on-board ML while keeping all current functionality.</p>",
+      "<p><strong>Thank you for exploring the neural network nebula!</strong></p>"
+    ]
+  },
+
+  "Node-4-0": {
+    "content": [
+      "<div id='draw-area' style='text-align: center; margin-top: 20px;'>",
+        "<canvas id='drawing-canvas' width='280' height='280' style='border:1px solid #000000;'></canvas>",
+        "<br>",
+        "<button id='clean-btn'>Clean</button>",
+        "<button id='evaluate-btn'>Evaluate</button>",
+        "<div id='prediction-result'>",
+          "<h3>Prediction Result:</h3>",
+          "<p id='predicted-class'></p>",
+        "</div>",
+      "</div>"
+    ]
+  }
+}
