@@ -1,4 +1,4 @@
-import { runNeuralNetwork, evaluateDrawing, setupDrawingCanvas, globalModel, initializeApp } from './mnist.js';
+import { setupDrawingCanvas, initializeApp, showConfusion} from './mnist.js';
 let scene, camera, renderer, particles, raycaster, mouse, nodes, edges = [];
 let hoveredNode = null;
 let neuralNetworkGroup; // New group to hold the entire neural network
@@ -261,6 +261,7 @@ async function showInfoPopup(node) {
     if (id === "Node-4-0") {
         //await runNeuralNetwork();
         setupDrawingCanvas();
+        showConfusion();
     }
 }
 

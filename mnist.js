@@ -1,14 +1,14 @@
 import {MnistData} from './data.js';
-export { runNeuralNetwork, evaluateDrawing, setupDrawingCanvas, globalModel, initializeApp };
+export { setupDrawingCanvas, initializeApp, showConfusion};
 var globalModel;
-var trained = false;
+var data;
 
 async function runNeuralNetwork() {  
-  const data = new MnistData();
+  data = new MnistData();
   await data.load();
   globalModel = getModel();
   await train(globalModel, data);
-  await showConfusion(data);
+  await showConfusion;
   setupDrawingCanvas(); // Call this new function to set up the drawing canvas
 }
 
@@ -102,9 +102,9 @@ function getModel() {
 
 async function train(model, data) {
     const BATCH_SIZE = 512;
-    const TRAIN_DATA_SIZE = 5500;
-    const TEST_DATA_SIZE = 1000;
-    const EPOCHS = 10;
+    const TRAIN_DATA_SIZE = 11000;
+    const TEST_DATA_SIZE = 2000;
+    const EPOCHS = 15;
 
     const [trainXs, trainYs] = tf.tidy(() => {
         const d = data.nextTrainBatch(TRAIN_DATA_SIZE);
@@ -150,7 +150,7 @@ async function train(model, data) {
             progress.style.width = `${progressPercentage}%`;
         }
     };
-    trained = true;
+    
     return model.fit(trainXs, trainYs, {
         batchSize: BATCH_SIZE,
         validationData: [testXs, testYs],
@@ -164,7 +164,7 @@ async function train(model, data) {
 //evaluation code
 const classNames = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
 
-function doPrediction(data, testDataSize = 500) {
+function doPrediction(data, testDataSize = 1000) {
   const IMAGE_WIDTH = 28;
   const IMAGE_HEIGHT = 28;
   const testData = data.nextTestBatch(testDataSize);
@@ -177,7 +177,7 @@ function doPrediction(data, testDataSize = 500) {
 }
 
 
-async function showConfusion(data) {
+async function showConfusion() {
     const [preds, labels] = doPrediction(data);
     const confusionMatrix = await tf.math.confusionMatrix(labels, preds, 10);
     
