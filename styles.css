@@ -106,9 +106,21 @@ body {
 }
 
 .popup-close-button {
+    display: block;
+    margin: 20px auto 0;
+    background-color: #08e83c;
+    color: #047e20;
+    border: none;
+    padding: 12px 24px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+    text-align: center;
     cursor: none !important;
     pointer-events: auto;
-    text-align: center;
 }
 
 

@@ -9,7 +9,6 @@ let cursorParticles = [];
 //for cursor particles
 let lastX = 0;
 let lastY = 0;
-let composer;
 let nodeData = {};
 
 
@@ -391,8 +390,8 @@ function createParticle(x, y, speed) {
     document.body.appendChild(particle);
 
     const size = Math.random() * 3 + 2;
-    const angle = Math.random() * Math.PI * 0.8;
-    const velocity = (Math.random() * speed / 110)+1;
+    const angle = Math.random() * Math.PI * 0.9;
+    const velocity = (Math.random() * speed / 110)+1.5;
 
     particle.style.left = x + 'px';
     particle.style.top = y + 'px';
