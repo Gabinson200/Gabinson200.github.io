@@ -50,6 +50,7 @@ body {
 }
 
 #info-popup {
+    cursor: none !important;
     display: none;
     position: absolute;
     top: 50%;
@@ -81,6 +82,7 @@ body {
 }
 
 #info-popup button {
+    cursor: none !important;
     background-color: #08e83c;
     color: #047e20;
     border: none;
@@ -100,6 +102,7 @@ body {
     background-color: #047e20;
     color: #08e83c;
     box-shadow: 0 0 20px rgba(0, 255, 255, 1);
+    cursor: none !important;
 }
 
 .popup-close-button {
@@ -115,6 +118,7 @@ body {
     top: 20px;
     z-index: 1000;
     transition: transform 0.3s ease;
+    cursor: none !important;
 }
 
 .social-link:hover {
