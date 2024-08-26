@@ -1,4 +1,8 @@
 import { setupDrawingCanvas, initializeApp, showConfusion} from './mnist.js';
+window.centerNeuralNetwork = centerNeuralNetwork;
+window.startNodeColorAnimation = startNodeColorAnimation;
+window.stopNodeColorAnimation = stopNodeColorAnimation;
+window.enableOtherFunctionality = enableOtherFunctionality;
 let scene, camera, renderer, particles, raycaster, mouse, nodes, edges = [];
 let hoveredNode = null;
 let neuralNetworkGroup; // New group to hold the entire neural network
@@ -10,6 +14,8 @@ let cursorParticles = [];
 let lastX = 0;
 let lastY = 0;
 let nodeData = {};
+
+let nodeColorAnimationId;
 
 
 fetch('nodeData.json')
@@ -507,6 +513,54 @@ function addNeonText(scene, camera) {
     });
 }
 
+function centerNeuralNetwork() {
+    // Reset the rotation and position of the neural network group
+    neuralNetworkGroup.rotation.set(0, 0, 0);
+    neuralNetworkGroup.position.set(0, 0, 0);
+    
+    // Disable rotation based on mouse movement
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('click', onClick);
+
+    document.getElementById('info-popup').style.display = 'none';
+
+}
+  
+function startNodeColorAnimation() {
+    // Start an animation loop
+    nodeColorAnimationId = requestAnimationFrame(animateNodeColors);
+}
+  
+function stopNodeColorAnimation() {
+    // Stop the animation loop
+    if (nodeColorAnimationId) {
+        cancelAnimationFrame(nodeColorAnimationId);
+        nodeColorAnimationId = null;
+    }
+
+    // Reset node colors
+    nodes.forEach(node => {
+      node.material.color.setHex(0x00ff00);
+    });
+}
+  
+function animateNodeColors() {
+    nodes.forEach(node => {
+      // Generate a random color
+      const r = Math.sin(Date.now() * 0.001 + node.position.x) * 0.5 + 0.5;
+      const g = Math.sin(Date.now() * 0.002 + node.position.y) * 0.5 + 0.5;
+      const b = Math.sin(Date.now() * 0.003 + node.position.z) * 0.5 + 0.5;
+      node.material.color.setRGB(r, g, b);
+    });
+    
+    nodeColorAnimationId = requestAnimationFrame(animateNodeColors);
+}
+
+
+function enableOtherFunctionality() {
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('click', onClick);
+}
 
 
 setInterval(() => {

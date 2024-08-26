@@ -7,7 +7,16 @@ async function runNeuralNetwork() {
   data = new MnistData();
   await data.load();
   globalModel = getModel();
+
+  // Call functions from script.js
+  await window.centerNeuralNetwork();
+  await window.startNodeColorAnimation();
+
   await train(globalModel, data);
+
+  await window.stopNodeColorAnimation();
+  await window.enableOtherFunctionality();
+
   await showConfusion;
   setupDrawingCanvas(); // Call this new function to set up the drawing canvas
 }
