@@ -2,7 +2,7 @@
   "Node-0-0": {
     "content": [
       "<p><strong>Explore the neural network nebula by clicking the nodes</strong></p>",
-      "<p><strong>If the start nn button is pressed a simple mnist neural network will begin training using Tensorflowjs, this will likely slow down the page but only for a few seconds.</strong></p>",
+      "<p><strong>If the start nn button is pressed a simple mnist neural network will begin training using Tensorflowjs, this will likely slow down the page for 10-30 seconds.</strong></p>",
       "<div><button id='start-nn'>start nn</button></div>"
     ]
   },
@@ -37,7 +37,7 @@
   },
   "Node-2-0": {
     "content": [
-      "<p><strong>Clubs: </strong>The subject has been know to engage with both academic and recreational clubs</p>",
+      "<p><strong>Clubs: </strong>The subject has been known to engage with both academic and recreational clubs</p>",
       "<p><strong>Academic: </strong><ul><li>UF gAItor AI club (applied team lead)</li><li>ACM</li></ul></p>",
       "<p><strong>Recreations: </strong><ul><li>UF Kickboxing Club</li><li>UF Judo Club</li><li>UF OAR Club</li></ul></p>"
     ]
@@ -52,6 +52,7 @@
 
   "Node-4-0": {
     "content": [
+      "<p><strong>Please rate my website from 0-9 by drawing a number on the canvas: </strong></p>",
       "<div id='draw-area' style='text-align: center; margin-top: 20px;'>",
         "<canvas id='drawing-canvas' width='280' height='280' style='border:1px solid #000000;'></canvas>",
         "<br>",

@@ -14,6 +14,7 @@ let cursorParticles = [];
 let lastX = 0;
 let lastY = 0;
 let nodeData = {};
+let isPopupOpen = false;
 
 let nodeColorAnimationId;
 
@@ -211,18 +212,16 @@ function updateCustomCursor(event) {
 
 
 function onClick(event) {
+    if (isPopupOpen) {
+        return; // If a popup is open, ignore further clicks
+    }
+
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(nodes);
 
     if (intersects.length > 0) {
         showInfoPopup(intersects[0].object);
     }
-
-    /*
-    closeButton.onclick = () => {
-        popup.style.display = 'none';
-    };
-    */
 }
 
 
@@ -230,6 +229,7 @@ async function showInfoPopup(node) {
     const popup = document.getElementById('info-popup');
     const {id, position} = node.nodeInfo;
     popup.style.display = 'block';
+    isPopupOpen = true; // Set the flag when opening the popup
 
     let content = `
         <h2>Node Data</h2>
@@ -254,17 +254,16 @@ async function showInfoPopup(node) {
     
     closeButton.onclick = () => {
         popup.style.display = 'none';
+        isPopupOpen = false;
     };
   
     popup.appendChild(closeButton);
 
     if (id === "Node-0-0") {
-        //await runNeuralNetwork();
         initializeApp();
     }
 
     if (id === "Node-4-0") {
-        //await runNeuralNetwork();
         setupDrawingCanvas();
         showConfusion();
     }
@@ -562,10 +561,8 @@ function enableOtherFunctionality() {
     window.addEventListener('click', onClick);
 }
 
-
 setInterval(() => {
     cursorParticles = cursorParticles.filter(p => document.body.contains(p));
 }, 10000);
-
 
 init();
