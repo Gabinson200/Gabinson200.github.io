@@ -517,6 +517,7 @@ function centerNeuralNetwork() {
     neuralNetworkGroup.rotation.set(0, 0, 0);
     neuralNetworkGroup.position.set(0, 0, 0);
     
+    isPopupOpen = false;
     // Disable rotation based on mouse movement
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('click', onClick);
