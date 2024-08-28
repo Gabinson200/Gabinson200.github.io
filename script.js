@@ -14,7 +14,7 @@ let isPopupOpen = false;
 let nodeColorAnimationId;
 
 // Constants
-const PARTICLE_COUNT = 1000;
+const PARTICLE_COUNT = 100;
 const LAYER_SIZES = [1, 2, 3, 1, 1];
 const LAYER_SPACING = 1.5;
 
