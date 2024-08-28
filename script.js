@@ -1,101 +1,213 @@
-import { setupDrawingCanvas, initializeApp, showConfusion} from './mnist.js';
+// Optimized imports
+import { setupDrawingCanvas, initializeApp, showConfusion } from './mnist.js';
+
+// Global variables
+let scene, camera, renderer, particles, raycaster, mouse, nodes = [], edges = [];
+let hoveredNode = null;
+let neuralNetworkGroup;
+let targetRotation = new THREE.Euler();
+let customCursor, cursorTriangle;
+let cursorParticles = [];
+let lastX = 0, lastY = 0;
+let nodeData = {};
+let isPopupOpen = false;
+let nodeColorAnimationId;
+
+// Constants
+const PARTICLE_COUNT = 1000;
+const LAYER_SIZES = [1, 2, 3, 1, 1];
+const LAYER_SPACING = 1.5;
+
+// Expose functions to the global scope
 window.centerNeuralNetwork = centerNeuralNetwork;
 window.startNodeColorAnimation = startNodeColorAnimation;
 window.stopNodeColorAnimation = stopNodeColorAnimation;
 window.enableOtherFunctionality = enableOtherFunctionality;
-let scene, camera, renderer, particles, raycaster, mouse, nodes, edges = [];
-let hoveredNode = null;
-let neuralNetworkGroup; // New group to hold the entire neural network
-let targetRotation = new THREE.Euler(); // Target rotation for smooth transition
-let customCursor;
-let cursorTriangle;
-let cursorParticles = [];
-//for cursor particles
-let lastX = 0;
-let lastY = 0;
-let nodeData = {};
-let isPopupOpen = false;
 
-let nodeColorAnimationId;
+// Initialize the application
+async function init() {
+    await loadNodeData();
+    setupScene();
+    setupEventListeners();
+    createParticles();
+    createNeuralNetwork();
+    addNeonText();
+    addSocialLinks();
+    animate();
+
+    // Set up MNIST-related functionality
+    setupMNIST();
+}
+
+// Set up MNIST-related functionality
+function setupMNIST() {
+    const startButton = document.getElementById('start-nn');
+    if (startButton) {
+        startButton.addEventListener('click', runNeuralNetwork);
+    } else {
+        console.log('Start NN button not found!');
+    }
+
+    // Set up the drawing canvas for MNIST
+    setupDrawingCanvas();
+}
+
+// Run the neural network
+async function runNeuralNetwork() {
+    console.log('NN training started!');
+    const startButton = document.getElementById('start-nn');
+    startButton.disabled = true;
+    startButton.textContent = 'Training in progress...';
+
+    try {
+        await centerNeuralNetwork();
+        await startNodeColorAnimation();
+
+        // Initialize and train the MNIST model
+        await initializeApp();
+
+        await stopNodeColorAnimation();
+        await enableOtherFunctionality();
+
+        // Show confusion matrix
+        await showConfusion();
+
+        startButton.textContent = 'Training completed';
+    } catch (error) {
+        console.error('Error during training:', error);
+        startButton.textContent = 'Training failed';
+    }
+}
+
+// Center the neural network visualization
+function centerNeuralNetwork() {
+    neuralNetworkGroup.rotation.set(0, 0, 0);
+    neuralNetworkGroup.position.set(0, 0, 0);
+    isPopupOpen = false;
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('click', onClick);
+    document.getElementById('info-popup').style.display = 'none';
+}
+
+// Start node color animation
+function startNodeColorAnimation() {
+    nodeColorAnimationId = requestAnimationFrame(animateNodeColors);
+}
+
+// Stop node color animation
+function stopNodeColorAnimation() {
+    if (nodeColorAnimationId) {
+        cancelAnimationFrame(nodeColorAnimationId);
+        nodeColorAnimationId = null;
+    }
+    nodes.forEach(node => {
+        node.material.color.setHex(0x00ff00);
+    });
+}
+
+// Animate node colors
+function animateNodeColors() {
+    nodes.forEach(node => {
+        const r = Math.sin(Date.now() * 0.001 + node.position.x) * 0.5 + 0.5;
+        const g = Math.sin(Date.now() * 0.002 + node.position.y) * 0.5 + 0.5;
+        const b = Math.sin(Date.now() * 0.003 + node.position.z) * 0.5 + 0.5;
+        node.material.color.setRGB(r, g, b);
+    });
+    nodeColorAnimationId = requestAnimationFrame(animateNodeColors);
+}
+
+// Enable other functionality
+function enableOtherFunctionality() {
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('click', onClick);
+}
 
 
-fetch('nodeData.json')
-    .then(response => response.json())
-    .then(data => {
-        nodeData = data;
-    })
-    .catch(error => console.error('Error loading node data:', error));
+// Load node data
+async function loadNodeData() {
+    try {
+        const response = await fetch('nodeData.json');
+        nodeData = await response.json();
+    } catch (error) {
+        console.error('Error loading node data:', error);
+    }
+}
 
-
-function init() {
+// Setup the 3D scene
+function setupScene() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-    //cursor init
+
     customCursor = document.getElementById('custom-cursor');
     cursorTriangle = document.getElementById('cursor-triangle');
-    document.addEventListener('mousemove', updateCustomCursor);
 
     camera.position.set(0, 0, 4);
-    addNeonText(scene, camera);
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2();
 
-    createParticles();
-    createNeuralNetwork();
+    neuralNetworkGroup = new THREE.Group();
+    scene.add(neuralNetworkGroup);
 
+    // Add arrow helper
+    const arrowHelper = createArrowHelper();
+    scene.add(arrowHelper);
+}
+
+// Create arrow helper
+function createArrowHelper() {
+    const dir = new THREE.Vector3(2, -1, 0).normalize();
+    const origin = new THREE.Vector3(-4.5, 0.8, 0);
+    const length = 1;
+    const hex = 0xFFD633;
+    const arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
+    arrowHelper.setLength(1, 0.3, 0.2);
+    return arrowHelper;
+}
+
+// Setup event listeners
+function setupEventListeners() {
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('click', onClick, false);
-    //arrow code
-    const dir = new THREE.Vector3( 2, -1, 0 );
-    //normalize the direction vector (convert to vector of length 1)
-    dir.normalize();
-
-    const origin = new THREE.Vector3( -4.5, 0.8, 0);
-    const length = 1;
-    const hex = 0xFFD633;
-
-    const arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
-    arrowHelper.setLength(1 , 0.3, 0.2);
-    scene.add( arrowHelper );
-
-    animate();
+    document.addEventListener('mousemove', updateCustomCursor);
 }
 
+// Create particles
 function createParticles() {
     const geometry = new THREE.BufferGeometry();
-    const vertices = [];
-
-    for (let i = 0; i < 1000; i++) {
-        vertices.push(
-            Math.random() * 2000 - 1000,
-            Math.random() * 2000 - 1000,
-            Math.random() * 2000 - 1000
-        );
-    }
-
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    const vertices = new Float32Array(PARTICLE_COUNT * 3).map(() => Math.random() * 2000 - 1000);
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
 
     const material = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 2 });
     particles = new THREE.Points(geometry, material);
     scene.add(particles);
 }
 
-
+// Create neural network
 function createNeuralNetwork() {
-    neuralNetworkGroup = new THREE.Group(); // Create a group for the neural network
-    scene.add(neuralNetworkGroup);
     const nodeGeometry = new THREE.SphereGeometry(0.15, 32, 32);
     const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const layerSizes = [1, 2, 3, 1, 1];
-    const layerSpacing = 1.5;
-    nodes = [];
+    const glowMaterial = createGlowMaterial();
 
-    // Create glow material
-    const glowMaterial = new THREE.ShaderMaterial({
+    LAYER_SIZES.forEach((size, layerIndex) => {
+        for (let i = 0; i < size; i++) {
+            const node = createNode(nodeGeometry, nodeMaterial, layerIndex, i, size);
+            const glowMesh = createGlowMesh(glowMaterial, node.position);
+            node.glowMesh = glowMesh;
+            neuralNetworkGroup.add(node, glowMesh);
+            nodes.push(node);
+        }
+    });
+
+    createEdges();
+}
+
+// Create glow material
+function createGlowMaterial() {
+    return new THREE.ShaderMaterial({
         uniforms: {
             c: { type: "f", value: 0.7 },
             p: { type: "f", value: 0.7 },
@@ -124,31 +236,31 @@ function createNeuralNetwork() {
         blending: THREE.AdditiveBlending,
         transparent: true
     });
+}
 
-    layerSizes.forEach((size, layerIndex) => {
-        for (let i = 0; i < size; i++) {
-            const node = new THREE.Mesh(nodeGeometry, nodeMaterial.clone()); // Clone the material for individual control
-            const x = layerIndex * layerSpacing - (layerSizes.length - 1) * layerSpacing / 2;
-            const y = (i - (size - 1) / 2) * 1.2;
-            node.position.set(x, y, 0);
-            node.originalScale = node.scale.clone(); // Store original scale
-            neuralNetworkGroup.add(node); // Add to group instead of scene
-            nodes.push(node);
+// Create a single node
+function createNode(geometry, material, layerIndex, nodeIndex, layerSize) {
+    const node = new THREE.Mesh(geometry, material.clone());
+    const x = layerIndex * LAYER_SPACING - (LAYER_SIZES.length - 1) * LAYER_SPACING / 2;
+    const y = (nodeIndex - (layerSize - 1) / 2) * 1.2;
+    node.position.set(x, y, 0);
+    node.originalScale = node.scale.clone();
+    node.nodeInfo = {
+        id: `Node-${layerIndex}-${nodeIndex}`,
+        position: `[${x.toFixed(2)}, ${y.toFixed(2)}, 0.00]`
+    };
+    return node;
+}
 
-            node.nodeInfo = {
-                id: `Node-${layerIndex}-${i}`,
-                position: `[${x.toFixed(2)}, ${y.toFixed(2)}, 0.00]`
-            }
+// Create glow mesh for a node
+function createGlowMesh(material, position) {
+    const glowMesh = new THREE.Mesh(new THREE.SphereGeometry(0.175, 32, 32), material);
+    glowMesh.position.copy(position);
+    return glowMesh;
+}
 
-            // Add glow effect
-            const glowMesh = new THREE.Mesh(new THREE.SphereGeometry(0.175, 32, 32), glowMaterial);
-            glowMesh.position.set(x, y, 0);
-            neuralNetworkGroup.add(glowMesh); // Add to group instead of scene
-            node.glowMesh = glowMesh; // Associate glow mesh with node
-        }
-    });
-
-    // Create edges between nodes
+// Create edges between nodes
+function createEdges() {
     const edgeMaterial = new THREE.MeshBasicMaterial({ color: 0xFFA500 });
     const glowEdgeMaterial = new THREE.MeshBasicMaterial({
         color: 0xFFD633,
@@ -156,38 +268,35 @@ function createNeuralNetwork() {
         opacity: 0.2
     });
 
-    for (let i = 0; i < layerSizes.length - 1; i++) {
-        for (let j = 0; j < layerSizes[i]; j++) {
-            for (let k = 0; k < layerSizes[i + 1]; k++) {
-                const startNodeIndex = layerSizes.slice(0, i).reduce((a, b) => a + b, 0) + j;
-                const endNodeIndex = layerSizes.slice(0, i + 1).reduce((a, b) => a + b, 0) + k;
-               
-                const startNode = nodes[startNodeIndex];
-                const endNode = nodes[endNodeIndex];
-
-                const direction = new THREE.Vector3().subVectors(endNode.position, startNode.position);
-                const edgeLength = direction.length()-0.5;
-                const edgeGeometry = new THREE.CylinderGeometry(0.03, 0.03, edgeLength, 8);
-                
-                const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
-                edge.position.copy(startNode.position);
-                edge.position.lerp(endNode.position, 0.5);
-                edge.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-                neuralNetworkGroup.add(edge); // Add to group instead of scene
-                edges.push(edge); // Store the edge
-
-                // Add glow effect to edges
-                const glowEdgeGeometry = new THREE.CylinderGeometry(0.1, 0.1, edgeLength, 8);
-                const glowEdge = new THREE.Mesh(glowEdgeGeometry, glowEdgeMaterial);
-                glowEdge.position.copy(edge.position);
-                glowEdge.quaternion.copy(edge.quaternion);
-                neuralNetworkGroup.add(glowEdge); // Add to group instead of scene
-                edges.push(glowEdge); // Store the glow edge
+    for (let i = 0; i < LAYER_SIZES.length - 1; i++) {
+        for (let j = 0; j < LAYER_SIZES[i]; j++) {
+            for (let k = 0; k < LAYER_SIZES[i + 1]; k++) {
+                const startNodeIndex = LAYER_SIZES.slice(0, i).reduce((a, b) => a + b, 0) + j;
+                const endNodeIndex = LAYER_SIZES.slice(0, i + 1).reduce((a, b) => a + b, 0) + k;
+                createEdge(nodes[startNodeIndex], nodes[endNodeIndex], edgeMaterial, glowEdgeMaterial);
             }
         }
     }
 }
 
+// Create a single edge
+function createEdge(startNode, endNode, material, glowMaterial) {
+    const direction = new THREE.Vector3().subVectors(endNode.position, startNode.position);
+    const edgeLength = direction.length() - 0.5;
+    const edgeGeometry = new THREE.CylinderGeometry(0.03, 0.03, edgeLength, 8);
+    const glowEdgeGeometry = new THREE.CylinderGeometry(0.1, 0.1, edgeLength, 8);
+
+    const edge = new THREE.Mesh(edgeGeometry, material);
+    const glowEdge = new THREE.Mesh(glowEdgeGeometry, glowMaterial);
+
+    edge.position.copy(startNode.position).lerp(endNode.position, 0.5);
+    edge.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+    glowEdge.position.copy(edge.position);
+    glowEdge.quaternion.copy(edge.quaternion);
+
+    neuralNetworkGroup.add(edge, glowEdge);
+    edges.push(edge, glowEdge);
+}
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -362,17 +471,24 @@ function addSocialLinks() {
 addSocialLinks();
 
 
+// Main animation loop
 function animate() {
     requestAnimationFrame(animate);
+    updateParticles();
+    updateNeuralNetwork();
+    renderer.render(scene, camera);
+}
 
+// Update particle positions
+function updateParticles() {
     particles.rotation.x += 0.0001;
     particles.rotation.y += 0.0001;
+}
 
-    // Smoothly interpolate current rotation to target rotation
+function updateNeuralNetwork() {
     neuralNetworkGroup.rotation.x += (targetRotation.x - neuralNetworkGroup.rotation.x) * 0.05;
     neuralNetworkGroup.rotation.y += (targetRotation.y - neuralNetworkGroup.rotation.y) * 0.05;
 
-    // Update hover effects
     nodes.forEach(node => {
         if (node !== hoveredNode) {
             node.scale.lerp(node.originalScale, 0.1);
@@ -380,13 +496,10 @@ function animate() {
         }
     });
 
-    // Rotate edges
     edges.forEach(edge => {
         edge.rotation.x = neuralNetworkGroup.rotation.x;
         edge.rotation.y = neuralNetworkGroup.rotation.y;
     });
-
-    renderer.render(scene, camera);
 }
 
 function createParticle(x, y, speed) {
@@ -512,58 +625,9 @@ function addNeonText(scene, camera) {
     });
 }
 
-function centerNeuralNetwork() {
-    // Reset the rotation and position of the neural network group
-    neuralNetworkGroup.rotation.set(0, 0, 0);
-    neuralNetworkGroup.position.set(0, 0, 0);
-    
-    isPopupOpen = false;
-    // Disable rotation based on mouse movement
-    window.removeEventListener('mousemove', onMouseMove);
-    window.removeEventListener('click', onClick);
-
-    document.getElementById('info-popup').style.display = 'none';
-
-}
   
-function startNodeColorAnimation() {
-    // Start an animation loop
-    nodeColorAnimationId = requestAnimationFrame(animateNodeColors);
-}
-  
-function stopNodeColorAnimation() {
-    // Stop the animation loop
-    if (nodeColorAnimationId) {
-        cancelAnimationFrame(nodeColorAnimationId);
-        nodeColorAnimationId = null;
-    }
-
-    // Reset node colors
-    nodes.forEach(node => {
-      node.material.color.setHex(0x00ff00);
-    });
-}
-  
-function animateNodeColors() {
-    nodes.forEach(node => {
-      // Generate a random color
-      const r = Math.sin(Date.now() * 0.001 + node.position.x) * 0.5 + 0.5;
-      const g = Math.sin(Date.now() * 0.002 + node.position.y) * 0.5 + 0.5;
-      const b = Math.sin(Date.now() * 0.003 + node.position.z) * 0.5 + 0.5;
-      node.material.color.setRGB(r, g, b);
-    });
-    
-    nodeColorAnimationId = requestAnimationFrame(animateNodeColors);
-}
-
-
-function enableOtherFunctionality() {
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('click', onClick);
-}
-
 setInterval(() => {
     cursorParticles = cursorParticles.filter(p => document.body.contains(p));
-}, 10000);
+}, 5000);
 
 init();
