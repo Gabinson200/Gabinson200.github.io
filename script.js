@@ -31,7 +31,7 @@ async function init() {
     setupEventListeners();
     createParticles();
     createNeuralNetwork();
-    addNeonText();
+    addNeonText(scene);
     addSocialLinks();
     animate();
 
@@ -548,7 +548,7 @@ function createParticle(x, y, speed) {
     cursorParticles.push(particle);
 }
 
-function addNeonText(scene, camera) {
+function addNeonText(scene) {
     const loader = new THREE.FontLoader();
     loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
         const textGeometry = new THREE.TextGeometry('Adam Kocsis', {
