@@ -17,9 +17,9 @@
 
 const IMAGE_SIZE = 784;
 const NUM_CLASSES = 10;
-const NUM_DATASET_ELEMENTS = 32500;
+const NUM_DATASET_ELEMENTS = 16250;
 
-const NUM_TRAIN_ELEMENTS = 27500;
+const NUM_TRAIN_ELEMENTS = 1375;
 const NUM_TEST_ELEMENTS = NUM_DATASET_ELEMENTS - NUM_TRAIN_ELEMENTS;
 
 const MNIST_IMAGES_SPRITE_PATH =
@@ -53,7 +53,7 @@ export class MnistData {
         const datasetBytesBuffer =
             new ArrayBuffer(NUM_DATASET_ELEMENTS * IMAGE_SIZE * 4);
 
-        const chunkSize = 2500;
+        const chunkSize = 1250;
         canvas.width = img.width;
         canvas.height = chunkSize;
 
