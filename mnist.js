@@ -111,8 +111,8 @@ function getModel() {
 
 async function train(model, data) {
     const BATCH_SIZE = 512;
-    const TRAIN_DATA_SIZE = 11000;
-    const TEST_DATA_SIZE = 2000;
+    const TRAIN_DATA_SIZE = 5500;
+    const TEST_DATA_SIZE = 1000;
     const EPOCHS = 10;
 
     const [trainXs, trainYs] = tf.tidy(() => {
